@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "icebreak",
+  "version": "${version}",
+  "name": "Icebreak",
+  "description": "What did you expect to happen when you jump on ice??",
+  "authors": [
+    "IMB11"
+  ],
+  "contact": {},
+  "license": "ARR",
+  "icon": "assets/icebreak/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.imb11.icebreak.Icebreak"
+    ]
+  },
+  "mixins": [
+    "icebreak.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

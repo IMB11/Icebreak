@@ -1,0 +1,10 @@
+{
+  "block.ice.stress": {
+    "subtitle": "sound.icebreak.ice.stress",
+    "sounds": [
+      "icebreak:ice_echo_01",
+      "icebreak:ice_echo_02",
+      "icebreak:ice_echo_03"
+    ]
+  }
+}
