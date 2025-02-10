@@ -12,9 +12,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,77 +33,106 @@ public class Icebreak implements ModInitializer {
         }
 
         if (entity instanceof LivingEntity livingEntity && level instanceof ServerLevel serverLevel) {
-            double safeFallDistance = livingEntity
-                    .getAttribute(Attributes.SAFE_FALL_DISTANCE)
-                    .getValue();
-            // Calculate the difference between fallDistance and safeFallDistance,
-            // but if it doesn't exceed safeFallDistance, we'll consider it 0 (no unsafe distance).
-            double unsafeFallDistance = Math.min(0, fallDistance - safeFallDistance);
-
             int strength = 1;
-            if (unsafeFallDistance > 2 && unsafeFallDistance <= 4) {
+            if (fallDistance > 1 && fallDistance <= 2) {
                 strength = 2;
-            } else if (unsafeFallDistance > 4) {
+            } else if (fallDistance > 2 && fallDistance <= 3) {
                 strength = 3;
+            } else if (fallDistance > 3) {
+                strength = 4;
             }
 
             // Higher strength = higher chance
-            float chanceOfCracking = 0.1f + (strength * 0.1f);
-
+            float chanceOfCracking = 0.05f + (fallDistance * 0.04f);
             if (serverLevel.random.nextFloat() < chanceOfCracking) {
-                int maxRange = strength * 2;
+                int initialRadius = 2;
+                int lightningLength = strength + 2;
+
                 serverLevel.getServer().execute(() -> {
                     CompletableFuture.runAsync(() -> {
+                        Set<BlockPos> initialCracked = new HashSet<>();
                         Queue<PositionWithDistance> queue = new LinkedList<>();
-                        Set<BlockPos> visited = new HashSet<>();
-
                         queue.add(new PositionWithDistance(blockPos, 0));
-                        visited.add(blockPos);
+                        initialCracked.add(blockPos);
 
                         while (!queue.isEmpty()) {
                             PositionWithDistance entry = queue.poll();
                             BlockPos currentPos = entry.pos();
                             int dist = entry.distance();
-                            BlockState currentState = serverLevel.getBlockState(currentPos);
-                            if (currentState.is(BlockTags.ICE)) {
-                                serverLevel.getServer().execute(() -> {
-                                    serverLevel.destroyBlock(currentPos, false);
-                                    //                                    serverLevel.setBlock(currentPos, Blocks.WATER.defaultBlockState(), UPDATE_ALL);
-                                });
-                            }
 
-                            if (dist < maxRange) {
-                                for (BlockPos neighborOffset : List.of(
-                                        currentPos.north(),
-                                        currentPos.south(),
-                                        currentPos.east(),
-                                        currentPos.west(),
-                                        currentPos.above(),
-                                        currentPos.below()
-                                )) {
-                                    if (!visited.contains(neighborOffset)) {
-                                        visited.add(neighborOffset);
-                                        queue.add(new PositionWithDistance(neighborOffset, dist + 1));
-                                    }
+                            if (serverLevel.getBlockState(currentPos).is(BlockTags.ICE)) {
+                                serverLevel.destroyBlock(currentPos, false);
+                                try {
+                                    Thread.sleep(5); // Slow down the cracking effect
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
                                 }
                             }
 
-                            try {
-                                Thread.sleep(25);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
+                            if (dist < initialRadius) {
+                                for (BlockPos neighbor : List.of(
+                                        currentPos.north(), currentPos.south(), currentPos.east(), currentPos.west(), currentPos.above(), currentPos.below())) {
+                                    if (!initialCracked.contains(neighbor) && serverLevel.getBlockState(neighbor).is(BlockTags.ICE)) { // Check if it's ice!
+                                        initialCracked.add(neighbor);
+                                        queue.add(new PositionWithDistance(neighbor, dist + 1));
+                                    }
+                                }
                             }
+                        }
+
+                        Set<BlockPos> allCracked = new HashSet<>(initialCracked);
+                        for (BlockPos startPos : initialCracked) {
+                            generateLightningBranch(serverLevel, startPos, lightningLength, allCracked);
                         }
                     });
                 });
             }
         }
 
-        if (level instanceof ClientLevel clientLevel) {
-            // Play stress sound.
-            clientLevel.playSound(entity, blockPos, ICE_STRESS, SoundSource.BLOCKS, 1.0f, 1.0f);
+        if (entity instanceof LivingEntity livingEntity && level instanceof ClientLevel clientLevel) {
+            clientLevel.playSound(livingEntity, blockPos, ICE_STRESS, SoundSource.BLOCKS, 1.0f, 1.0f);
         }
     }
+
+    private static void generateLightningBranch(ServerLevel serverLevel, BlockPos startPos, int length, Set<BlockPos> allCracked) {
+        BlockPos currentPos = startPos;
+        int currentLength = 0;
+
+        while (currentLength < length) {
+            List<BlockPos> possibleDirections = getValidDirections(serverLevel, currentPos, allCracked); // Get valid directions (ice, not already cracked)
+            if (possibleDirections.isEmpty()) {
+                break; // Dead end
+            }
+
+            BlockPos nextPos = possibleDirections.get(serverLevel.random.nextInt(possibleDirections.size())); // Random direction
+
+            if(serverLevel.getBlockState(nextPos).is(BlockTags.ICE)){ // Double check to be safe
+                serverLevel.destroyBlock(nextPos, false);
+                allCracked.add(nextPos);
+                try {
+                    Thread.sleep(5); // Slow down the cracking effect
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            currentPos = nextPos;
+            currentLength++;
+        }
+    }
+
+
+    private static List<BlockPos> getValidDirections(ServerLevel serverLevel, BlockPos currentPos, Set<BlockPos> allCracked) {
+        List<BlockPos> validDirections = new ArrayList<>();
+        for (BlockPos neighbor : List.of(
+                currentPos.north(), currentPos.south(), currentPos.east(), currentPos.west(), currentPos.above(), currentPos.below())) {
+            if (serverLevel.getBlockState(neighbor).is(BlockTags.ICE) && !allCracked.contains(neighbor)) {
+                validDirections.add(neighbor);
+            }
+        }
+        return validDirections;
+    }
+
 
     public static ResourceLocation loc(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
