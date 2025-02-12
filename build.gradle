@@ -16,6 +16,10 @@ repositories {
         name "Xander's Maven"
         url "https://maven.isxander.dev/releases"
     }
+    maven {
+        name "TerraformersMC Maven"
+        url "https://maven.terraformersmc.com/releases"
+    }
 }
 
 dependencies {
@@ -25,7 +29,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation(include "dev.isxander:yet-another-config-lib:${project.yacl_version}")
+    modImplementation include("dev.isxander:yet-another-config-lib:${project.yacl_version}")
+    modLocalRuntime modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}")
 }
 
 processResources {

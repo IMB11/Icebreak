@@ -1,3 +1,14 @@
 {
-  "sound.icebreak.ice.stress": "Ice Stresses"
+  "sound.icebreak.ice.stress": "Ice Stresses",
+  "config.icebreak.title": "Icebreak Configuration",
+  "config.icebreak.blockBreakDelay": "Block Break Delay",
+  "config.icebreak.blockBreakDelay.description": "The delay, in milliseconds, between each \"ice\" block being broken when icebreak occurs.",
+  "config.icebreak.crackExpansionAmount.description": "The initial number of blocks which should be broken when creating \"cracks\" from the corners of the initial hole. This is added to the calculated strength of the impact which is relative to fall distance.",
+  "config.icebreak.crackExpansionAmount": "Crack Expansion Amount",
+  "config.icebreak.holeRadius": "Initial Hole Radius",
+  "config.icebreak.holeRadius.description": "The initial radius, measured in block layers (e.g. the first block is layer zero, blocks surrounding that block are layer 1, so on so forth), of the hole formed when icebreak occurs. This is before cracking occurs.",
+  "config.icebreak.fallDistanceMultiplier": "Fall Distance Chance Multiplier",
+  "config.icebreak.fallDistanceMultiplier.description": "The chance added onto the total chance per fall distance block before hitting the ice.",
+  "config.icebreak.initialCrackChance": "Initial Icebreak Chance",
+  "config.icebreak.initialCrackChance.description": "The initial chance, before taking into account fall distance, that icebreak occurs."
 }

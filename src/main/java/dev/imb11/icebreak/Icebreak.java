@@ -1,5 +1,6 @@
 package dev.imb11.icebreak;
 
+import dev.imb11.icebreak.config.IcebreakConfig;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -28,6 +29,8 @@ public class Icebreak implements ModInitializer {
             SoundEvent.createVariableRangeEvent(loc("block.ice.stress")));
 
     public static void handleIceBlockJumpEvent(Level level, BlockPos blockPos, Entity entity, float fallDistance) {
+        var config = IcebreakConfig.get();
+
         if (fallDistance < 1) {
             return;
         }
@@ -43,10 +46,10 @@ public class Icebreak implements ModInitializer {
             }
 
             // Higher strength = higher chance
-            float chanceOfCracking = 0.05f + (fallDistance * 0.04f);
+            float chanceOfCracking = config.initialCrackChance + (fallDistance * config.fallDistanceMultiplier);
             if (serverLevel.random.nextFloat() < chanceOfCracking) {
-                int initialRadius = 2;
-                int lightningLength = strength + 2;
+                int initialRadius = config.holeRadius;
+                int lightningLength = strength + config.crackExpansionAmount;
 
                 serverLevel.getServer().execute(() -> {
                     CompletableFuture.runAsync(() -> {
@@ -63,7 +66,7 @@ public class Icebreak implements ModInitializer {
                             if (serverLevel.getBlockState(currentPos).is(BlockTags.ICE)) {
                                 serverLevel.destroyBlock(currentPos, false);
                                 try {
-                                    Thread.sleep(5); // Slow down the cracking effect
+                                    Thread.sleep(config.blockBreakDelay); // Slow down the cracking effect
                                 } catch (InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -82,7 +85,7 @@ public class Icebreak implements ModInitializer {
 
                         Set<BlockPos> allCracked = new HashSet<>(initialCracked);
                         for (BlockPos startPos : initialCracked) {
-                            generateLightningBranch(serverLevel, startPos, lightningLength, allCracked);
+                            generateLightningBranch(config, serverLevel, startPos, lightningLength, allCracked);
                         }
                     });
                 });
@@ -94,7 +97,7 @@ public class Icebreak implements ModInitializer {
         }
     }
 
-    private static void generateLightningBranch(ServerLevel serverLevel, BlockPos startPos, int length, Set<BlockPos> allCracked) {
+    private static void generateLightningBranch(IcebreakConfig config, ServerLevel serverLevel, BlockPos startPos, int length, Set<BlockPos> allCracked) {
         BlockPos currentPos = startPos;
         int currentLength = 0;
 
@@ -110,7 +113,7 @@ public class Icebreak implements ModInitializer {
                 serverLevel.destroyBlock(nextPos, false);
                 allCracked.add(nextPos);
                 try {
-                    Thread.sleep(5); // Slow down the cracking effect
+                    Thread.sleep(config.blockBreakDelay); // Slow down the cracking effect
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
