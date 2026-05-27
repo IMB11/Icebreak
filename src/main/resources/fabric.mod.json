@@ -5,9 +5,14 @@
   "name": "Icebreak",
   "description": "What did you expect to happen when you jump on ice?",
   "authors": [
-    "IMB11"
+    "IMB11",
+    "cassiancc"
   ],
-  "contact": {},
+  "contact": {
+    "homepage": "https://modrinth.com/mod/icebreak",
+    "sources": "https://github.com/IMB11-Mods/Icebreak",
+    "issues": "https://github.com/IMB11-Mods/Icebreak"
+  },
   "license": "ARR",
   "icon": "assets/icebreak/icon.png",
   "environment": "*",
@@ -24,7 +29,7 @@
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "fabric": "*",
+    "fabric-api": "*",
     "minecraft": "${minecraft_version}"
   }
 }

@@ -15,12 +15,12 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.ValueFormatters;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class IcebreakConfig {
     public static ConfigClassHandler<IcebreakConfig> CONFIG_CLASS_HANDLER = ConfigClassHandler
             .createBuilder(IcebreakConfig.class)
-            .id(ResourceLocation.tryBuild("icebreak", "config"))
+            .id(Identifier.fromNamespaceAndPath("icebreak", "config"))
             .serializer(config -> GsonConfigSerializerBuilder
                     .create(config)
                     .setPath(FabricLoader.getInstance().getConfigDir().resolve("icebreak.config.json"))

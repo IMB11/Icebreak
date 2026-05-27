@@ -16,10 +16,9 @@ public abstract class IceBlockMixin extends HalfTransparentBlock {
     }
 
     @Override
-    public void fallOn(Level level, BlockState blockState, BlockPos blockPos, Entity entity, float fallDistance) {
-        super.fallOn(level, blockState, blockPos, entity, fallDistance);
-
-        Icebreak.handleIceBlockJumpEvent(level, blockPos, entity, fallDistance);
+    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
+        super.fallOn(level, state, pos, entity, fallDistance);
+        Icebreak.handleIceBlockJumpEvent(level, pos, entity, fallDistance);
     }
 
 }

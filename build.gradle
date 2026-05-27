@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.16-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -20,17 +20,17 @@ repositories {
         name "TerraformersMC Maven"
         url "https://maven.terraformersmc.com/releases"
     }
+    mavenCentral()
 }
 
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation include("dev.isxander:yet-another-config-lib:${project.yacl_version}")
-    modLocalRuntime modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}")
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation include("dev.isxander:yet-another-config-lib:${project.yacl_version}")
+    implementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 }
 
 processResources {
@@ -46,7 +46,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly

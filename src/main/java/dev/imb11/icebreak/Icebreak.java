@@ -6,7 +6,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -28,7 +28,7 @@ public class Icebreak implements ModInitializer {
             loc("block.ice.stress"),
             SoundEvent.createVariableRangeEvent(loc("block.ice.stress")));
 
-    public static void handleIceBlockJumpEvent(Level level, BlockPos blockPos, Entity entity, float fallDistance) {
+    public static void handleIceBlockJumpEvent(Level level, BlockPos blockPos, Entity entity, double fallDistance) {
         var config = IcebreakConfig.get();
 
         if (fallDistance < 1) {
@@ -46,8 +46,8 @@ public class Icebreak implements ModInitializer {
             }
 
             // Higher strength = higher chance
-            float chanceOfCracking = config.initialCrackChance + (fallDistance * config.fallDistanceMultiplier);
-            if (serverLevel.random.nextFloat() < chanceOfCracking) {
+            double chanceOfCracking = config.initialCrackChance + (fallDistance * config.fallDistanceMultiplier);
+            if (serverLevel.getRandom().nextFloat() < chanceOfCracking) {
                 int initialRadius = config.holeRadius;
                 int lightningLength = strength + config.crackExpansionAmount;
 
@@ -107,7 +107,7 @@ public class Icebreak implements ModInitializer {
                 break; // Dead end
             }
 
-            BlockPos nextPos = possibleDirections.get(serverLevel.random.nextInt(possibleDirections.size())); // Random direction
+            BlockPos nextPos = possibleDirections.get(serverLevel.getRandom().nextInt(possibleDirections.size())); // Random direction
 
             if(serverLevel.getBlockState(nextPos).is(BlockTags.ICE)){ // Double check to be safe
                 serverLevel.destroyBlock(nextPos, false);
@@ -137,8 +137,8 @@ public class Icebreak implements ModInitializer {
     }
 
 
-    public static ResourceLocation loc(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier loc(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
     @Override
